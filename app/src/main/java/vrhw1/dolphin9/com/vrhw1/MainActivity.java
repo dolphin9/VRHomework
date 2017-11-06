@@ -11,35 +11,54 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import static vrhw1.dolphin9.com.vrhw1.R.attr.height;
+
 public class MainActivity extends AppCompatActivity {
 
-    private GLSurfaceView mGLSurfaceView;
+    //初始化  OpenGL
+    private GLSurfaceView glSurfaceView;
+    private boolean rendererSet = false;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
+        //setContentView(R.layout.activity_main);
+
+        //测试是否支持OpenGL2.0
         if(!Utils.supportGlEs20(this)){
             Toast.makeText(this,"GLES 2.0 not supported!", Toast.LENGTH_LONG).show();
             finish();
             return;
         }
-        mGLSurfaceView = (GLSurfaceView) findViewById(R.id.surface);
 
+        // 初始化 glSurfaceView
+        glSurfaceView = new GLSurfaceView(this);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        //Configuring the Surface for OpenGL ES 2.0
+        glSurfaceView.setEGLContextClientVersion(2);
+        glSurfaceView.setRenderer(new MyRenderer());
+        rendererSet = true;
+        setContentView(glSurfaceView);
+    }
+    @Override
+    protected void onPause(){
+        super.onPause();
+        if (rendererSet){
+            glSurfaceView.onPause();
+        }
+    }
+    @Override
+    protected  void  onResume(){
+        super.onResume();
+        if(rendererSet){
+            glSurfaceView.onResume();
+        }
     }
 
+
+    //////////////////////////////////////
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
